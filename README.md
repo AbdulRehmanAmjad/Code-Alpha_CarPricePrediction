@@ -28,7 +28,7 @@ This project predicts the selling price of a used car using Machine Learning. It
 
 1. Clone this repository:
    ```bash
-   git clone YOUR_GITHUB_REPOSITORY_URL
+   https://github.com/AbdulRehmanAmjad/Code-Alpha_CarPricePrediction?utm_source=chatgpt.com
    ```
 
 2. Open the project folder:

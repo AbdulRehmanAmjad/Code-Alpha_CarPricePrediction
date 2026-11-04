@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import requests
 from sklearn.linear_model import LinearRegression
 
 st.set_page_config(page_title="Car Price Prediction", page_icon="🚗", layout="centered")
@@ -23,20 +24,43 @@ def train_selected_model():
     selected_model.fit(features, target)
     return selected_model
 
-model = train_selected_model()
+@st.cache_data(ttl=3600)
+def get_inr_to_pkr_rate():
+    """Fetch a live INR/PKR rate; use a clearly disclosed fallback if offline."""
+    fallback_rate = 2.92
+    try:
+        response = requests.get(
+            "https://open.er-api.com/v6/latest/INR",
+            timeout=5
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if payload.get("result") == "success":
+            rate = payload.get("rates", {}).get("PKR")
+            if rate and rate > 0:
+                return float(rate), "live"
+    except (requests.RequestException, ValueError, TypeError):
+        pass
+    return fallback_rate, "fallback"
 
-# Indicative mid-market reference rate on 4 Nov 2026.
-# This is a display conversion, not a Pakistan-market price model.
-INR_TO_PKR = 2.92
+model = train_selected_model()
+inr_to_pkr, rate_source = get_inr_to_pkr_rate()
 
 st.title("🚗 Car Price Prediction")
 st.write("Enter the car details to estimate its selling price.")
-
 st.info(
     "Dataset note: the source dataset is commonly interpreted in Indian "
-    "Rupees lakhs. The PKR figure is an approximate currency conversion, "
+    "Rupees lakhs. The PKR figure is a currency conversion of that estimate, "
     "not a Pakistan-market valuation."
 )
+if rate_source == "live":
+    st.caption(f"INR → PKR exchange rate: 1 INR = PKR {inr_to_pkr:.4f} (live reference; cached for 1 hour).")
+else:
+    st.warning(
+        f"Live exchange rate unavailable. Using fallback rate "
+        f"1 INR = PKR {inr_to_pkr:.2f}; this may be outdated."
+    )
+
 st.divider()
 st.header("Enter Car Details")
 
@@ -68,12 +92,12 @@ if submit:
     }])
     prediction_inr_lakh = float(model.predict(input_data)[0])
     prediction_inr = prediction_inr_lakh * 100000
-    prediction_pkr = prediction_inr * INR_TO_PKR
+    prediction_pkr = prediction_inr * inr_to_pkr
     st.success("Prediction generated")
     st.subheader("Estimated Selling Price")
     st.title(f"PKR {prediction_pkr:,.0f}")
     st.caption(
         f"Approx. INR {prediction_inr:,.0f} before conversion. "
-        f"Conversion reference: 1 INR ≈ PKR {INR_TO_PKR:.2f} "
-        "(4 Nov 2026; update this rate when needed)."
+        "Currency conversion is indicative only; actual exchange rates and "
+        "Pakistan used-car market prices may differ."
     )

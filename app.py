@@ -48,11 +48,6 @@ inr_to_pkr, rate_source = get_inr_to_pkr_rate()
 
 st.title("🚗 Car Price Prediction")
 st.write("Enter the car details to estimate its selling price.")
-st.info(
-    "Dataset note: the source dataset is commonly interpreted in Indian "
-    "Rupees lakhs. The PKR figure is a currency conversion of that estimate, "
-    "not a Pakistan-market valuation."
-)
 if rate_source == "live":
     st.caption(f"INR → PKR exchange rate: 1 INR = PKR {inr_to_pkr:.4f} (live reference; cached for 1 hour).")
 else:

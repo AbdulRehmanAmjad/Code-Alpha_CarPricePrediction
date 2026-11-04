@@ -12,7 +12,7 @@ The notebook compares Linear Regression, Random Forest, and a GridSearchCV-tuned
 - Features include present price, kilometers driven, fuel type, selling type, transmission, owner count, and car age.
 - The supplied dataset is commonly interpreted in Indian Rupees lakhs. The app fetches an INR/PKR reference exchange rate and caches it for one hour; if the rate service is unavailable, it displays a disclosed fallback rate.
 
-**Important limitation:** Converting the dataset's INR-based estimate to PKR does not make this a Pakistan-market-trained model. Its estimates are educational approximations and should not be treated as actual local market valuations.
+**Important limitation:** The model is trained on the supplied dataset, not on Pakistan-market listings. The app converts its INR-based estimate to PKR for display; this currency conversion does not make the estimate a Pakistan-market valuation. Treat predictions as educational estimates, not verified local selling prices.
 
 ## Model Evaluation
 Recorded results on the 20% test split (random_state=42):
@@ -34,7 +34,7 @@ Linear Regression was selected because it had the highest recorded test R² scor
 - Jupyter Notebook
 
 ## Project Files
-- `Car_Price_Prediction.ipynb` — data cleaning, EDA, model comparison, tuning, and final model export.
+- `Car_Price_Prediction.ipynb` — data cleaning, EDA, model comparison, tuning, cross-validation, permutation-based feature analysis, and final model export.
 - `app.py` — Streamlit application; trains the selected Linear Regression model from the included CSV.
 - `car data.csv` — source dataset (filename used by the notebook and app).
 - `requirements.txt` — Python dependencies, including the HTTP client used for the exchange-rate lookup.

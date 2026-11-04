@@ -62,12 +62,13 @@ st.header("Enter Car Details")
 with st.form("car_prediction_form"):
     present_price = st.number_input(
         "Present Price (dataset unit: INR lakh)",
-        min_value=0.1,
+        min_value=0.32,
+        max_value=92.6,
         value=5.0,
-        help="Use the same unit as the source dataset."
+        help="Allowed range is based on the training dataset (INR lakh)."
     )
-    driven_kms = st.number_input("Kilometers Driven", min_value=0, value=10000)
-    car_age = st.number_input("Car Age (years)", min_value=0, max_value=50, value=5)
+    driven_kms = st.number_input("Kilometers Driven", min_value=0, max_value=500000, value=10000, help="The training dataset contains up to 500,000 km.")
+    car_age = st.number_input("Car Age (years)", min_value=0, max_value=15, value=5, help="The training dataset covers car ages from 0 to 15 years.")
     fuel_type = st.selectbox("Fuel Type", ["Petrol", "Diesel", "CNG"])
     selling_type = st.selectbox("Selling Type", ["Dealer", "Individual"])
     transmission = st.selectbox("Transmission", ["Manual", "Automatic"])
@@ -75,6 +76,9 @@ with st.form("car_prediction_form"):
     submit = st.form_submit_button("Predict Car Price")
 
 if submit:
+    if driven_kms < 500:
+        st.warning("The training dataset starts at 500 km. This prediction uses an input below the observed training range.")
+
     input_data = pd.DataFrame([{
         "Present_Price": present_price,
         "Driven_kms": driven_kms,
